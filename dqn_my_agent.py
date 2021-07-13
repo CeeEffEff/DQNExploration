@@ -23,14 +23,13 @@ class MyAgent(dqn_agent.DqnAgent):
         num_actions = action_spec.maximum - action_spec.minimum + 1 # As our action spec is defined on N 
         observation_spec = self._tf_env.observation_spec()
         time_step_spec = self._tf_env.time_step_spec()
-        self._q_network = MyQNetwork( input_tensor_spec=observation_spec, action_spec=action_spec, num_actions = num_actions, dense_layers=1)
         
-        # preprocessing_layers = {
-        #     'price':tf.keras.layers.Flatten(),
-        #     'pos':tf.keras.layers.Dense(2),
-        #     'pos_price':tf.keras.layers.Dense(2),
-        #     'time':tf.keras.layers.Dense(1)
-        # }
+        preprocessing_layers = {
+            'price':tf.keras.layers.Flatten(),
+            'pos':tf.keras.layers.Dense(2),
+            'pos_price':tf.keras.layers.Dense(2),
+            'time':tf.keras.layers.Dense(1)
+        }
 
         self._q_network = q_network.QNetwork(
             input_tensor_spec=observation_spec,
