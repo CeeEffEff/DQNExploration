@@ -8,7 +8,7 @@ tf.compat.v1.enable_v2_behavior()
 
 from dqn_agent_driver import AgentDriver
 
-driver = AgentDriver(num_collect_episodes=1000, num_eval_episodes= 1, verbose_env=True)
+driver = AgentDriver(num_collect_episodes=10, num_eval_episodes= 1, verbose_env=True)
 
 print("Initialising target")
 driver.run_target(verbose=True)
@@ -27,7 +27,7 @@ def pause_input():
     if input_bool:
         input()
 
-for i in range(1):
+for i in range(10):
     print("Iteration", i)
     print("Exploring...")
     driver.run_collect(verbose=True)

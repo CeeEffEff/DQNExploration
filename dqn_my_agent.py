@@ -11,7 +11,7 @@ from tf_agents.typing import types
 tf.compat.v1.enable_v2_behavior()
 
 
-from dqn_my_env_v1_2 import MyTFEnv
+from dqn_my_env import MyTFEnv
 from dqn_q_network import MyQNetwork
 from tf_agents.networks import q_network
 
@@ -36,7 +36,7 @@ class MyAgent(dqn_agent.DqnAgent):
             action_spec= action_spec,
             preprocessing_layers=preprocessing_layers,
             preprocessing_combiner= tf.keras.layers.Concatenate(axis=-1),
-            fc_layer_params = [(40,),(40,)]
+            fc_layer_params = [40,40]
         )
 
         
