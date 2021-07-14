@@ -8,7 +8,7 @@ tf.compat.v1.enable_v2_behavior()
 
 from dqn_agent_driver import AgentDriver
 
-driver = AgentDriver(num_collect_episodes=10, num_eval_episodes= 10, replay_buffer_capacity = 1000, verbose_env=True)
+driver = AgentDriver(num_collect_episodes=10, num_eval_episodes= 10, replay_buffer_capacity = 10000, verbose_env=True)
 
 
 print("Initialising target...")

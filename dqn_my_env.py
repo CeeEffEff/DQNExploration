@@ -90,12 +90,6 @@ class MyPyEnv(py_environment.PyEnvironment):
 
 
     def get_state(self):
-        # return {
-        #     'price': list(zip(self._prices, self._MA_slow, self._MA_fast, self._MA_close))[-20:],
-        #     'pos': [self._short_pos, self._long_pos],
-        #     'pos_price':[self._entry_price],
-        #     'time':[self._bar_number]
-        # }
         return {
             'price': np.array(list(zip(self._prices, self._MA_slows, self._MA_fasts, self._MA_closes))[self._bar_number-20:self._bar_number], dtype=np.float64),
             'pos': np.array([self._short_pos, self._long_pos], dtype=np.int32),
@@ -110,12 +104,9 @@ class MyPyEnv(py_environment.PyEnvironment):
         return self._observation_spec
 
     def _reset(self):
-        #price
         self.init_prices()
-        #pos
         self._short_pos = np.int32(0)
         self._long_pos = np.int32(0)
-        #time
         self._step_no = np.int32(0)
         self._bar_number = self._step_no + 20
 
@@ -132,19 +123,16 @@ class MyPyEnv(py_environment.PyEnvironment):
             return self.reset()
 
         if self._step_no == 0:
-            # print(f"[Episode {self._epi_counter }]")
             self._epi_counter += 1
         
-        # print(f"[{self._num_steps}] Action: {action}")
-
         # Make sure episodes don't go on forever. 
         # Say stop loss or end of day - we need to exit?
         forced_exit = self._check_exit_condition()
         if forced_exit:
             if self._long_pos == 1: # Long
-                action = 0 # Sell
+                action = 2 # Sell
             elif self._short_pos == 1: # Short
-                action = 2 # Buy to sell
+                action = 0 # Buy to sell
 
         previous_price = self._price
         self.set_current_bar_prices()
@@ -152,37 +140,41 @@ class MyPyEnv(py_environment.PyEnvironment):
         reward = 0
         action_string = ""
         flat = False
-        if action == 0: # Short or sell
+
+        if action == 0: # Short or exit short (buy to sell)
             if self._short_pos == 0 and self._long_pos == 0: #  Enter Short as no pos
                 self._short_pos = 1
                 # record the price entered short on
                 self._entry_price = self._price
                 action_string = "Enter short"
-            elif self._long_pos == 1: # Long, so sell
-                reward = self._price - self._entry_price
-                self._long_pos = 0
-                self._entry_price = 0
-                action_string = "Sell"
-            elif self._short_pos == 1: # already short..
+            elif self._long_pos == 1: # Long, leave alone - flat
                 action_string = "Flat"
                 flat = True
+            elif self._short_pos == 1: # Exit short (buy to sell)
+                reward = self._entry_price - self._price
+                self._short_pos = 0
+                action_string = "Buy to sell"
+                self._entry_price = 0
+                
         elif action == 1: # Flat
             action_string = "Flat"
             flat = True
-        elif action == 2: # Long or buy to sell
+
+        elif action == 2: # Long or exit long (sell)
             if self._short_pos == 0 and self._long_pos == 0: # Enter Long as no pos
                 self._long_pos = 1
                 # record the price entered Long on
                 action_string = "Enter long"
                 self._entry_price = self._price
-            elif self._short_pos == 1: # Short, so buy to sell
-                reward = self._entry_price - self._price
-                self._short_pos = 0
-                action_string = "Buy to sell"
-                self._entry_price = 0
-            elif self._long_pos == 1: # already long..
+            elif self._short_pos == 1: # Short, leave alone - flat
                 action_string = "Flat"
                 flat = True
+            elif self._long_pos == 1: # exit long (sell)
+                reward = self._price - self._entry_price
+                self._long_pos = 0
+                self._entry_price = 0
+                action_string = "Sell"
+
         else:
             raise ValueError('`action` should be in [0,1,2].')
         
