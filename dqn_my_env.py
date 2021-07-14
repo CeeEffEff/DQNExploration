@@ -64,13 +64,15 @@ class MyPyEnv(py_environment.PyEnvironment):
     def init_prices(self):
         
         self._prices = np.empty(shape=(self.total_length,))
-        self._prices[0] = np.random.uniform(low=0.0, high=100.0)
+        #self._prices[0] = np.random.uniform(low=0.0, high=100.0)
+        self._prices[0] = np.random.uniform(low=200.0, high=300.0)
         self._MA_slows = np.zeros_like(self._prices)
         self._MA_fasts = np.zeros_like(self._prices)
         self._MA_closes = np.zeros_like(self._prices)
 
         for time in range(1,self.total_length):
-            step = np.random.randint(0, high=2)
+            #step = np.random.randint(0, high=2)
+            step = np.random.randint(-1, high=1)
             self._prices[time] = self._prices[time - 1] + step
             
             if time > self.largest_av_length:
@@ -144,10 +146,12 @@ class MyPyEnv(py_environment.PyEnvironment):
             elif self._short_pos == 1: # Short
                 action = 2 # Buy to sell
 
+        previous_price = self._price
         self.set_current_bar_prices()
 
         reward = 0
         action_string = ""
+        flat = False
         if action == 0: # Short or sell
             if self._short_pos == 0 and self._long_pos == 0: #  Enter Short as no pos
                 self._short_pos = 1
@@ -157,11 +161,14 @@ class MyPyEnv(py_environment.PyEnvironment):
             elif self._long_pos == 1: # Long, so sell
                 reward = self._price - self._entry_price
                 self._long_pos = 0
+                self._entry_price = 0
                 action_string = "Sell"
             elif self._short_pos == 1: # already short..
                 action_string = "Flat"
+                flat = True
         elif action == 1: # Flat
             action_string = "Flat"
+            flat = True
         elif action == 2: # Long or buy to sell
             if self._short_pos == 0 and self._long_pos == 0: # Enter Long as no pos
                 self._long_pos = 1
@@ -172,12 +179,19 @@ class MyPyEnv(py_environment.PyEnvironment):
                 reward = self._entry_price - self._price
                 self._short_pos = 0
                 action_string = "Buy to sell"
+                self._entry_price = 0
             elif self._long_pos == 1: # already long..
                 action_string = "Flat"
-                
+                flat = True
         else:
             raise ValueError('`action` should be in [0,1,2].')
         
+        if flat and (self._short_pos == 1 or self._long_pos == 1):
+            reward = self._price - previous_price 
+            if self._short_pos:
+                reward *= -1
+
+
 
         print(f"[Episode {self._epi_counter }][{self._step_no}] Action: {action} {action_string}             ", end="\r")
         self._step_no += 1
@@ -237,6 +251,8 @@ class MyPyEnv(py_environment.PyEnvironment):
                 state_string += f",[Final reward: {reward}]"
             else:
                 state_string += f",[Step reward: {reward}]"
+        # state = self.get_state()
+        # state_string += f"\n {state}]"
         print(state_string)
         reward = None
 
