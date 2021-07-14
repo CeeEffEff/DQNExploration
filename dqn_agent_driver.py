@@ -2,6 +2,8 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+from tensorflow.python.data.ops.dataset_ops import AUTOTUNE
+
 from dqn_my_agent import MyAgent
 
 import numpy as np
@@ -15,11 +17,11 @@ tf.compat.v1.enable_v2_behavior()
 
 
 class AgentDriver:
-    def __init__(self, num_collect_episodes, num_eval_episodes, verbose_env=False):
+    def __init__(self, num_collect_episodes, num_eval_episodes, replay_buffer_capacity, verbose_env=False):
         # train_sequence_length = self.train_seq_len, 
         self._agent = MyAgent(verbose_env=verbose_env)
         
-        self._collect_driver = AgentCollectPolicyDriver(self._agent, num_collect_episodes)
+        self._collect_driver = AgentCollectPolicyDriver(self._agent, num_collect_episodes, replay_buffer_capacity)
         self._target_driver = AgentTargetPolicyDriver(self._agent, num_eval_episodes)
         
 
@@ -32,6 +34,7 @@ class AgentDriver:
     def train_target(self,train_steps:int, sample_batch_size:int, verbose=False):
         #
         dataset = self._collect_driver._replay_buffer.as_dataset(
+            num_parallel_calls=AUTOTUNE,
             single_deterministic_pass=True,
             sample_batch_size=sample_batch_size, # Simply influences when we update - analyse 4 then update. Lower batch size - more responsive to one training
             num_steps=2 # Shows directly the transition of one step to another
@@ -39,9 +42,11 @@ class AgentDriver:
             
         )
         iterator = iter(dataset)
-
+        
         # Now we have defined how we want to pull data out (sample) we sample and train for a set number of samples - 10 here
         num_train_steps = train_steps
+        print("Number of frames in replay: ", self._collect_driver._replay_buffer.num_frames().numpy())
+        num_train_steps = int(self._collect_driver._replay_buffer.num_frames().numpy()/sample_batch_size)
         for i in range(num_train_steps):
             trajectories, _ = next(iterator)
             loss = self._agent.train(experience=trajectories)
@@ -69,17 +74,17 @@ class AgentDriver:
 
 class AgentCollectPolicyDriver(dynamic_episode_driver.DynamicEpisodeDriver):
 
-    def __init__(self, agent, num_episodes):
+    def __init__(self, agent, num_episodes, replay_buffer_capacity):
 
         self._agent = agent
 
 
         batch_size = 1 if not self._agent._tf_env.batched else self._agent._tf_env.batch_size
-        max_length = 1000
+        
         self._replay_buffer = tf_uniform_replay_buffer.TFUniformReplayBuffer(
             data_spec = self._agent.collect_data_spec,
             batch_size = batch_size,
-            max_length=max_length
+            max_length=replay_buffer_capacity
         )
         self._num_episodes_metric = tf_metrics.NumberOfEpisodes()
         self._env_steps = tf_metrics.EnvironmentSteps()
