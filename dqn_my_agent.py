@@ -36,7 +36,7 @@ class MyAgent(dqn_agent.DqnAgent):
             action_spec= action_spec,
             preprocessing_layers=preprocessing_layers,
             preprocessing_combiner= tf.keras.layers.Concatenate(axis=-1),
-            fc_layer_params = [40,40]
+            fc_layer_params = (40,)
         )
 
         
@@ -45,6 +45,7 @@ class MyAgent(dqn_agent.DqnAgent):
             action_spec,
             q_network=self._q_network,
             optimizer=tf.compat.v1.train.AdadeltaOptimizer(learning_rate=0.001),
+            target_update_period= 10
         )
 
     def reset_ep_counter(self):
