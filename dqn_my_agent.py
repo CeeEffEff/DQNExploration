@@ -7,6 +7,7 @@ import tensorflow as tf
 from tf_agents.policies import q_policy
 from tf_agents.agents.dqn import dqn_agent
 from tf_agents.typing import types
+from tf_agents.utils import common
 
 tf.compat.v1.enable_v2_behavior()
 
@@ -45,8 +46,12 @@ class MyAgent(dqn_agent.DqnAgent):
             action_spec,
             q_network=self._q_network,
             optimizer=tf.compat.v1.train.AdadeltaOptimizer(learning_rate=0.001),
-            target_update_period= 10
+            target_update_period= 10,
+            td_errors_loss_fn= common.element_wise_squared_loss
+            #element_wise_huber_loss 
         )
+        
+        
 
     def reset_ep_counter(self):
         self._tf_env.reset_ep_counter()

@@ -20,7 +20,7 @@ class AgentDriver:
     def __init__(self, num_collect_episodes, num_eval_episodes, replay_buffer_capacity, verbose_env=False):
         # train_sequence_length = self.train_seq_len, 
         self._agent = MyAgent(verbose_env=verbose_env)
-        
+        self._agent.initialize()
         self._collect_driver = AgentCollectPolicyDriver(self._agent, num_collect_episodes, replay_buffer_capacity)
         self._target_driver = AgentTargetPolicyDriver(self._agent, num_eval_episodes)
         
