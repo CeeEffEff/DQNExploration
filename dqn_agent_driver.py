@@ -32,7 +32,7 @@ class AgentDriver:
             print()
 
     def train_target(self,train_steps:int, sample_batch_size:int, verbose=False):
-        #
+        
         dataset = self._collect_driver._replay_buffer.as_dataset(
             num_parallel_calls=AUTOTUNE,
             single_deterministic_pass=True,
@@ -47,13 +47,23 @@ class AgentDriver:
         num_train_steps = train_steps
         print("Number of frames in replay: ", self._collect_driver._replay_buffer.num_frames().numpy())
         num_train_steps = int(self._collect_driver._replay_buffer.num_frames().numpy()/sample_batch_size)
+        
+        total_loss = 0
+        max_loss = 0
         for i in range(num_train_steps):
-            trajectories, _ = next(iterator)
+            trajectories, a = next(iterator)
             loss = self._agent.train(experience=trajectories)
+            max_loss = max(max_loss, loss.loss)
+            total_loss += loss.loss
             if verbose:
                 print(f"[{i}] Loss: {loss.loss}", end="\r")
         if verbose:
             print()
+            print(f"[Total] Loss: {total_loss}")
+            print(f"[Average] Loss: {total_loss/num_train_steps}")
+            print(f"[Max] Loss: {max_loss}")
+            print()
+
 
     def train_target_on_all(self, verbose=False):
         trajectories = self._collect_driver._replay_buffer.gather_all()
@@ -153,5 +163,11 @@ class AgentTargetPolicyDriver(dynamic_episode_driver.DynamicEpisodeDriver):
         print('Number of Steps: ', self._env_steps.result().numpy())
         print('Number of Episodes: ', self._num_episodes_metric.result().numpy())
         print('Average Return: ', self._average_rtn.result().numpy())
+
+        # iterations = range(0, num_iterations + 1, eval_interval)
+        # plt.plot(iterations, returns)
+        # plt.ylabel('Average Return')
+        # plt.xlabel('Iterations')
+        # plt.ylim(top=250)
 
     

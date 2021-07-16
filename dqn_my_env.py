@@ -26,8 +26,10 @@ class MyPyEnv(py_environment.PyEnvironment):
         self._action_spec = array_spec.BoundedArraySpec(
             shape=(), dtype=np.int32, minimum=0, maximum=2, name='action')
         
+        self._num_prices = 5
+
         self._observation_spec = {
-            'price':array_spec.BoundedArraySpec(shape=(20,4), dtype=np.float64, minimum=0, name='obs_price'),
+            'price':array_spec.BoundedArraySpec(shape=(self._num_prices,4), dtype=np.float64, minimum=0, name='obs_price'),
             'pos':array_spec.BoundedArraySpec(shape=(2,), dtype=np.int32, minimum=0, maximum=1, name='obs_pos'),
             'pos_price':array_spec.BoundedArraySpec(shape=(1,), dtype=np.float64, minimum=0, maximum=1, name='obs_pos_price'),
             'time':array_spec.BoundedArraySpec(shape=(1,), dtype=np.int32, minimum=0, maximum=1, name='obs_time')
@@ -44,7 +46,7 @@ class MyPyEnv(py_environment.PyEnvironment):
         self._long_pos = np.int32(0)
         #time
         self._step_no = np.int32(0)
-        self._bar_number = self._step_no + 20
+        self._bar_number = self._step_no + self._num_prices
         
         self.set_current_bar_prices()
 
@@ -91,7 +93,7 @@ class MyPyEnv(py_environment.PyEnvironment):
 
     def get_state(self):
         return {
-            'price': np.array(list(zip(self._prices, self._MA_slows, self._MA_fasts, self._MA_closes))[self._bar_number-20:self._bar_number], dtype=np.float64),
+            'price': np.array(list(zip(self._prices, self._MA_slows, self._MA_fasts, self._MA_closes))[self._bar_number-self._num_prices:self._bar_number], dtype=np.float64),
             'pos': np.array([self._short_pos, self._long_pos], dtype=np.int32),
             'pos_price': np.array([self._entry_price], dtype=np.float64),
             'time': np.array([self._bar_number], dtype=np.int32)
@@ -108,7 +110,7 @@ class MyPyEnv(py_environment.PyEnvironment):
         self._short_pos = np.int32(0)
         self._long_pos = np.int32(0)
         self._step_no = np.int32(0)
-        self._bar_number = self._step_no + 20
+        self._bar_number = self._step_no + self._num_prices
 
         self._state = self.get_state()
         
@@ -140,6 +142,14 @@ class MyPyEnv(py_environment.PyEnvironment):
         reward = 0
         action_string = ""
         flat = False
+
+        # DEBUG
+        # if action == 0:
+        #     reward = 100
+        # elif action == 1:
+        #     reward = 25
+        # elif action == 2:
+        #     reward = -100
 
         if action == 0: # Short or exit short (buy to sell)
             if self._short_pos == 0 and self._long_pos == 0: #  Enter Short as no pos

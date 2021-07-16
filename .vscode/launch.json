@@ -1,0 +1,13 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: test_agent_driver",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/test_agent_driver.py",
+            "console": "integratedTerminal",
+            "justMyCode": false
+        }
+    ]
+}

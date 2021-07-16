@@ -8,12 +8,20 @@ tf.compat.v1.enable_v2_behavior()
 
 from dqn_agent_driver import AgentDriver
 
-driver = AgentDriver(num_collect_episodes=10, num_eval_episodes= 10, replay_buffer_capacity = 10000, verbose_env=True)
+driver = AgentDriver(num_collect_episodes=10, num_eval_episodes= 4, replay_buffer_capacity = 10000, verbose_env=True)
+
+
+input_bool = True
+evaluate_before_train = True
 
 
 print("Initialising target...")
 driver.run_target(verbose=True)
-input("Initialised, PRESS ENTER to continue")
+
+if input_bool:
+    print("Initialised")
+else:
+    input("Initialised, PRESS ENTER to continue")
 
 # for i in range(10):
 #     print("Iteration", i, end="\r")
@@ -23,20 +31,21 @@ input("Initialised, PRESS ENTER to continue")
 # driver.run_target(verbose=True)
     #input()
 
-input_bool = True
+
 def pause_input(message:str):
     if input_bool:
         input(message)
 
-for i in range(100):
+for i in range(200):
     pause_input("Press ENTER to explore using collect policy")
     print("Iteration", i)
     print("Exploring...")
     driver.run_collect(verbose=True)
 
-    pause_input("Press ENTER to evaluate target before training")
-    print("Before training, evaluating target...")
-    driver.run_target(verbose=True)
+    if (evaluate_before_train):
+        pause_input("Press ENTER to evaluate target before training")
+        print("Before training, evaluating target...")
+        driver.run_target(verbose=True)
 
     pause_input("Press ENTER to train")
     print("Training...")
@@ -50,4 +59,4 @@ for i in range(100):
     print("Evaluating target...")
     driver.run_target(verbose=True)
 
-input()
+input("Completed")
