@@ -50,9 +50,11 @@ class AgentDriver:
         
         total_loss = 0
         max_loss = 0
+        all_loss = []
         for i in range(num_train_steps):
-            trajectories, a = next(iterator)
+            trajectories, _ = next(iterator)
             loss = self._agent.train(experience=trajectories)
+            all_loss.append(loss.loss)
             max_loss = max(max_loss, loss.loss)
             total_loss += loss.loss
             if verbose:
@@ -63,6 +65,8 @@ class AgentDriver:
             print(f"[Average] Loss: {total_loss/num_train_steps}")
             print(f"[Max] Loss: {max_loss}")
             print()
+
+        return all_loss
 
 
     def train_target_on_all(self, verbose=False):
@@ -76,9 +80,10 @@ class AgentDriver:
 
     def run_target(self,verbose=False):
         self._agent.reset_ep_counter()
-        _ = self._target_driver.run(verbose=verbose)
+        _, _, num_episodes, average_return = self._target_driver.run(verbose=verbose)
         if verbose:
             print()
+        return num_episodes, average_return
 
     
 
@@ -156,7 +161,7 @@ class AgentTargetPolicyDriver(dynamic_episode_driver.DynamicEpisodeDriver):
         final_time_step, policy_state = super().run()
         if verbose:
             self.display_metrics()
-        return final_time_step, policy_state
+        return final_time_step, policy_state, self._num_episodes_metric.result().numpy(), self._average_rtn.result().numpy()
 
     def display_metrics(self):
         print()
