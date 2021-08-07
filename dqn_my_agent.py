@@ -4,16 +4,13 @@ from __future__ import print_function
 
 import tensorflow as tf
 
-from tf_agents.policies import q_policy
 from tf_agents.agents.dqn import dqn_agent
-from tf_agents.typing import types
 from tf_agents.utils import common
 
 tf.compat.v1.enable_v2_behavior()
 
 
 from dqn_my_env import MyTFEnv
-from dqn_q_network import MyQNetwork
 from tf_agents.networks import q_network
 
 
@@ -47,11 +44,8 @@ class MyAgent(dqn_agent.DqnAgent):
             time_step_spec,
             action_spec,
             q_network=self._q_network,
-            #optimizer=tf.compat.v1.train.AdadeltaOptimizer(learning_rate=0.001),
             optimizer = tf.keras.optimizers.Adam(learning_rate=0.001),
-            #target_update_period= 10,
             td_errors_loss_fn= common.element_wise_squared_loss
-            #element_wise_huber_loss 
         )
         self._q_network.summary()
         self._q_network._encoder.summary()

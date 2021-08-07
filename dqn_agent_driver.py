@@ -18,7 +18,6 @@ tf.compat.v1.enable_v2_behavior()
 
 class AgentDriver:
     def __init__(self, num_collect_episodes, num_eval_episodes, replay_buffer_capacity, verbose_env=False):
-        # train_sequence_length = self.train_seq_len, 
         self._agent = MyAgent(verbose_env=verbose_env)
         self._agent.initialize()
         self._collect_driver = AgentCollectPolicyDriver(self._agent, num_collect_episodes, replay_buffer_capacity)
@@ -43,7 +42,7 @@ class AgentDriver:
         )
         iterator = iter(dataset)
         
-        # Now we have defined how we want to pull data out (sample) we sample and train for a set number of samples - 10 here
+        # Now we have defined how we want to pull data out (sample) we sample and train for a set number of samples
         num_train_steps = train_steps
         print("Number of frames in replay: ", self._collect_driver._replay_buffer.num_frames().numpy())
         num_train_steps = int(self._collect_driver._replay_buffer.num_frames().numpy()/sample_batch_size)
@@ -169,10 +168,5 @@ class AgentTargetPolicyDriver(dynamic_episode_driver.DynamicEpisodeDriver):
         print('Number of Episodes: ', self._num_episodes_metric.result().numpy())
         print('Average Return: ', self._average_rtn.result().numpy())
 
-        # iterations = range(0, num_iterations + 1, eval_interval)
-        # plt.plot(iterations, returns)
-        # plt.ylabel('Average Return')
-        # plt.xlabel('Iterations')
-        # plt.ylim(top=250)
 
     
