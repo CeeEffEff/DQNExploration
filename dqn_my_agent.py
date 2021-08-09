@@ -15,7 +15,7 @@ from tf_agents.networks import q_network
 
 
 class MyAgent(dqn_agent.DqnAgent):
-    def __init__(self, verbose_env=False):
+    def __init__(self, learning_rate, verbose_env=False, show_summary=False):
         self._tf_env = MyTFEnv(verbose_env=verbose_env)
         action_spec = self._tf_env.action_spec()
         num_actions = action_spec.maximum - action_spec.minimum + 1 # As our action spec is defined on N 
@@ -44,12 +44,13 @@ class MyAgent(dqn_agent.DqnAgent):
             time_step_spec,
             action_spec,
             q_network=self._q_network,
-            optimizer = tf.keras.optimizers.Adam(learning_rate=0.001),
+            optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate),
             td_errors_loss_fn= common.element_wise_squared_loss
         )
         self._q_network.summary()
         self._q_network._encoder.summary()
-        input()
+        if show_summary:
+            input()
         
 
     def reset_ep_counter(self):

@@ -12,8 +12,17 @@ tf.compat.v1.enable_v2_behavior()
 
 from dqn_agent_driver import AgentDriver
 
+VISUALISATIONS_DIR = "visualisations"
 
-graph_file_name_prefix = os.path.join("visualisations", "AverageReturn_" + datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
+if not os.path.exists(VISUALISATIONS_DIR):
+    os.makedirs(VISUALISATIONS_DIR)
+
+visual_subdir = os.path.join(VISUALISATIONS_DIR, datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
+
+if not os.path.exists(visual_subdir):
+    os.makedirs(visual_subdir)
+
+graph_file_name_prefix = os.path.join(visual_subdir, "AverageReturn_")
 
 def plot_average_returns(average_returns, iteration):
     plt.plot(average_returns)
@@ -22,7 +31,7 @@ def plot_average_returns(average_returns, iteration):
     plt.ylabel('Average Return')
     plt.savefig(f"{graph_file_name_prefix}__{iteration}.png")
 
-num_iterations = 200
+num_iterations = 2000
 iterations = list(range(0, num_iterations + 1))
 average_returns = []
 driver = AgentDriver(num_collect_episodes=10, num_eval_episodes= 4, replay_buffer_capacity = 10000, verbose_env=True)

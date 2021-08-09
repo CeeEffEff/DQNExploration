@@ -17,8 +17,8 @@ tf.compat.v1.enable_v2_behavior()
 
 
 class AgentDriver:
-    def __init__(self, num_collect_episodes, num_eval_episodes, replay_buffer_capacity, verbose_env=False):
-        self._agent = MyAgent(verbose_env=verbose_env)
+    def __init__(self, num_collect_episodes, num_eval_episodes, replay_buffer_capacity, learning_rate, verbose_env=False, show_summary=False):
+        self._agent = MyAgent(learning_rate, verbose_env=verbose_env, show_summary=show_summary)
         self._agent.initialize()
         self._collect_driver = AgentCollectPolicyDriver(self._agent, num_collect_episodes, replay_buffer_capacity)
         self._target_driver = AgentTargetPolicyDriver(self._agent, num_eval_episodes)
