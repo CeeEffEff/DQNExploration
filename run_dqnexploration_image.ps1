@@ -1,0 +1,1 @@
+docker run --gpus all --rm -ti -v /mnt/c/:/mnt/c dqnexploration:test1
