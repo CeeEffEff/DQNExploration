@@ -28,7 +28,7 @@ graph_file_name_prefix = os.path.join(visual_subdir, "AverageReturn_")
 
 random_seed = 123123
 
-n_trials = 10
+n_trials = 100
 
 # Debug
 input_bool = False
@@ -147,6 +147,17 @@ study = optuna.create_study(direction="maximize")
 study.optimize(objective, n_trials=n_trials)
 
 print(f"Optimised average return: {study.best_value}")
+with open(os.path.join(visual_subdir, "results.txt"), "w") as results_file:
+    results_file.write(f"Best params: {study.best_params}\n")
+    results_file.write(f"Best trial: {study.best_trial}\n")
+    results_file.write(f"Best value: {study.best_value}\n")
+    results_file.write(f"Param importances: {str(optuna.importance.get_param_importances(study))}")
+
+with open(os.path.join(visual_subdir, "results.csv"), "w") as results_file:
+    results_file.write("study.best_params,study.best_trial,study.best_value,param_importances\n")
+    results_file.write(f"{study.best_params},{study.best_trial},{study.best_value}, {str(optuna.importance.get_param_importances(study))}")
+
+
 
 input("Complete")
 
