@@ -15,7 +15,9 @@ from tf_agents.networks import q_network
 
 
 class MyAgent(dqn_agent.DqnAgent):
-    def __init__(self, learning_rate, verbose_env=False, show_summary=False):
+    def __init__(self, learning_rate, fc_layer_units, fc_layer_depth, verbose_env=False, show_summary=False):
+        tf.random.set_seed(123123)
+        
         self._tf_env = MyTFEnv(verbose_env=verbose_env)
         action_spec = self._tf_env.action_spec()
         num_actions = action_spec.maximum - action_spec.minimum + 1 # As our action spec is defined on N 
@@ -34,7 +36,7 @@ class MyAgent(dqn_agent.DqnAgent):
             action_spec= action_spec,
             preprocessing_layers=preprocessing_layers,
             preprocessing_combiner= tf.keras.layers.Concatenate(axis=-1),
-            fc_layer_params = (20,10)
+            fc_layer_params = (fc_layer_units,) * fc_layer_depth
         )
 
         

@@ -31,6 +31,7 @@ gym==0.18.3
 h5py==3.1.0
 idna==2.6
 importlib-metadata==4.0.1
+joblib==1.0.1
 keras-nightly==2.5.0.dev2021032900
 Keras-Preprocessing==1.1.2
 keyring==10.6.0
@@ -68,6 +69,7 @@ PyYAML==5.4.1
 requests==2.25.1
 requests-oauthlib==1.3.0
 rsa==4.7.2
+scikit-learn==0.24.2
 scipy==1.5.4
 SecretStorage==2.3.1
 setuptools==56.2.0
@@ -82,6 +84,7 @@ tensorflow-estimator==2.5.0rc0
 tensorflow-probability==0.12.2
 termcolor==1.1.0
 tf-agents==0.8.0
+threadpoolctl==2.2.0
 tqdm==4.62.0
 typing-extensions==3.7.4.3
 urllib3==1.26.4

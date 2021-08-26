@@ -6,6 +6,7 @@ from __future__ import print_function
 import matplotlib.pyplot as plt
 import os
 from datetime import datetime
+import numpy as np
 
 import tensorflow as tf
 tf.compat.v1.enable_v2_behavior()
@@ -24,6 +25,10 @@ visual_subdir = os.path.join(VISUALISATIONS_DIR, datetime.now().strftime("%Y-%m-
 if not os.path.exists(visual_subdir):
     os.makedirs(visual_subdir)
 graph_file_name_prefix = os.path.join(visual_subdir, "AverageReturn_")
+
+random_seed = 123123
+
+n_trials = 100
 
 # Debug
 input_bool = False
@@ -50,13 +55,13 @@ def objective(trail:optuna.Trial):
     # HYPER_PARAMETERS
     params = {
         #num_iterations = trail.suggest_int("num_iterations", 30, 100)
-        "num_iterations" : 30,
+        "num_iterations" : 20,
     
         #num_collect_episodes = 10
         "num_collect_episodes" : trail.suggest_int("num_collect_episodes", 2, 20),
     
-        #num_eval_episodes = 4
-        "num_eval_episodes" : trail.suggest_int("num_eval_episodes", 2, 10),
+        "num_eval_episodes" : 10,
+        #"num_eval_episodes" : trail.suggest_int("num_eval_episodes", 2, 10),
 
         #replay_buffer_capacity = 10000
         "replay_buffer_capacity" : trail.suggest_int("replay_buffer_capacity", 1000, 10000, step = 1000),
@@ -68,21 +73,32 @@ def objective(trail:optuna.Trial):
         "train_steps" : trail.suggest_int("train_steps", 50, 500, step = 10),
 
         #sample_batch_size = 16
-        "sample_batch_size" : trail.suggest_int("sample_batch_size", 4, 128)
+        "sample_batch_size" : trail.suggest_int("sample_batch_size", 4, 128),
+
+        # "fc_layer_units" : (20,10) # orig
+        "fc_layer_units" : trail.suggest_int("fc_layer_units", 10, 30, 2),
+        
+        #fc_layer_depth
+        "fc_layer_depth" : trail.suggest_int("fc_layer_depth", 1, 5)
 
     }
     return run_test(**params)
 
 
 
-def run_test(num_iterations, num_collect_episodes, num_eval_episodes, replay_buffer_capacity, learning_rate, train_steps, sample_batch_size):
+def run_test(num_iterations, num_collect_episodes, num_eval_episodes, replay_buffer_capacity, learning_rate, train_steps, sample_batch_size, fc_layer_units, fc_layer_depth):
     iterations = list(range(0, num_iterations + 1))
     average_returns = []
+    tf.random.set_seed(random_seed)
+    np.random.seed(random_seed)
+
     driver = AgentDriver(
         num_collect_episodes=num_collect_episodes,
         num_eval_episodes=num_eval_episodes,
         replay_buffer_capacity=replay_buffer_capacity,
         learning_rate=learning_rate,
+        fc_layer_units = fc_layer_units,
+        fc_layer_depth = fc_layer_depth,
         verbose_env=True,
         show_summary=input_bool
     )
@@ -128,9 +144,20 @@ def run_test(num_iterations, num_collect_episodes, num_eval_episodes, replay_buf
 
 study = optuna.create_study(direction="maximize")
 
-study.optimize(objective, n_trials=200)
+study.optimize(objective, n_trials=n_trials)
 
 print(f"Optimised average return: {study.best_value}")
+with open(os.path.join(visual_subdir, "results.txt"), "w") as results_file:
+    results_file.write(f"Best params: {study.best_params}\n")
+    results_file.write(f"Best trial: {study.best_trial}\n")
+    results_file.write(f"Best value: {study.best_value}\n")
+    results_file.write(f"Param importances: {str(optuna.importance.get_param_importances(study))}")
+
+with open(os.path.join(visual_subdir, "results.csv"), "w") as results_file:
+    results_file.write("study.best_params,study.best_trial,study.best_value,param_importances\n")
+    results_file.write(f"{study.best_params},{study.best_trial},{study.best_value}, {str(optuna.importance.get_param_importances(study))}")
+
+
 
 input("Complete")
 

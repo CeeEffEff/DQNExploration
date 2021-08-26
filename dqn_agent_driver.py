@@ -17,8 +17,8 @@ tf.compat.v1.enable_v2_behavior()
 
 
 class AgentDriver:
-    def __init__(self, num_collect_episodes, num_eval_episodes, replay_buffer_capacity, learning_rate, verbose_env=False, show_summary=False):
-        self._agent = MyAgent(learning_rate, verbose_env=verbose_env, show_summary=show_summary)
+    def __init__(self, num_collect_episodes, num_eval_episodes, replay_buffer_capacity, learning_rate, fc_layer_units, fc_layer_depth, verbose_env=False, show_summary=False):
+        self._agent = MyAgent(learning_rate, fc_layer_units, fc_layer_depth, verbose_env=verbose_env, show_summary=show_summary)
         self._agent.initialize()
         self._collect_driver = AgentCollectPolicyDriver(self._agent, num_collect_episodes, replay_buffer_capacity)
         self._target_driver = AgentTargetPolicyDriver(self._agent, num_eval_episodes)
@@ -46,7 +46,9 @@ class AgentDriver:
         num_train_steps = train_steps
         print("Number of frames in replay: ", self._collect_driver._replay_buffer.num_frames().numpy())
         num_train_steps = int(self._collect_driver._replay_buffer.num_frames().numpy()/sample_batch_size)
-        
+        if num_train_steps == 0:
+            num_train_steps = 1
+
         total_loss = 0
         max_loss = 0
         all_loss = []

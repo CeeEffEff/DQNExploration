@@ -26,6 +26,8 @@ class MyPyEnv(py_environment.PyEnvironment):
             shape=(), dtype=np.int32, minimum=0, maximum=2, name='action')
         
         self._num_prices = 5
+        np.random.seed(123123)
+        #self.random_seed = random_seed
 
         self._observation_spec = {
             'price':array_spec.BoundedArraySpec(shape=(self._num_prices,4), dtype=np.float64, minimum=0, name='obs_price'),
@@ -49,7 +51,7 @@ class MyPyEnv(py_environment.PyEnvironment):
         
         self.set_current_bar_prices()
 
-        self.max_steps = 100
+        self.max_steps = 10
         self._state = self.get_state()
         self._episode_ended = False
         self._epi_counter = 0
@@ -66,11 +68,14 @@ class MyPyEnv(py_environment.PyEnvironment):
         
         self._prices = np.empty(shape=(self.total_length,))
         #self._prices[0] = np.random.uniform(low=0.0, high=100.0)
+        
         self._prices[0] = np.random.uniform(low=200.0, high=300.0)
+
         self._MA_slows = np.zeros_like(self._prices)
         self._MA_fasts = np.zeros_like(self._prices)
         self._MA_closes = np.zeros_like(self._prices)
 
+        #np.random.seed(self.random_seed)
         for time in range(1,self.total_length):
             #step = np.random.randint(0, high=2)
             step = np.random.randint(-1, high=1)

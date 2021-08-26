@@ -1,0 +1,1 @@
+docker image build --file Dockerfile --tag dqnexploration:latest ./
