@@ -53,7 +53,7 @@ pip==20.2.4
 portpicker==1.4.0
 prettytable==2.1.0
 protobuf==3.17.0
-pyasn1==0.4.8
+pyasn1==0.6.3
 pyasn1-modules==0.2.8
 pycrypto==2.6.1
 pyglet==1.5.15
