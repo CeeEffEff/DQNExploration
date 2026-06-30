@@ -29,7 +29,7 @@ greenlet==1.1.1
 grpcio==1.53.2
 gym==0.18.3
 h5py==3.1.0
-idna==3.7
+idna==3.15
 importlib-metadata==4.0.1
 joblib==1.5.3
 keras-nightly==2.5.0.dev2021032900
