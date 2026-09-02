@@ -13,7 +13,7 @@ cmaes==0.8.2
 cmd2==2.1.2
 colorama==0.4.4
 colorlog==5.0.1
-cryptography==48.0.1
+cryptography==50.0.0
 cycler==0.10.0
 dataclasses==0.8
 decorator==5.0.9
@@ -48,12 +48,12 @@ optuna==2.9.1
 packaging==21.0
 pandas==1.1.5
 pbr==5.6.0
-Pillow==12.2.0
-pip==26.1
+Pillow==12.3.0
+pip==26.2
 portpicker==1.4.0
 prettytable==2.1.0
 protobuf==5.29.6
-pyasn1==0.6.3
+pyasn1==0.6.4
 pyasn1-modules==0.2.8
 pycrypto==2.6.1
 pyglet==1.5.15
@@ -72,7 +72,7 @@ rsa==4.7.2
 scikit-learn==1.5.0
 scipy==1.5.4
 SecretStorage==2.3.1
-setuptools==78.1.1
+setuptools==83.0.0
 six==1.15.0
 SQLAlchemy==1.4.22
 stevedore==3.3.0
